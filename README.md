@@ -5,7 +5,7 @@ for Android
 #### Installation
 
 ```
-git submodule add https://github.com/diewland/handmade-slideshow.git app/src/main/java/com/diewland/handmadeslideshow
+git submodule add https://github.com/diewland/handmade-slideshow.git app/src/main/java/com/diewland/hmslideshow
 ```
 
 #### Update code

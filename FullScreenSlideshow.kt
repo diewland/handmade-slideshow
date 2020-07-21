@@ -1,4 +1,4 @@
-package com.diewland.handmadeslideshow
+package com.diewland.hmslideshow
 
 import android.app.Activity
 import android.graphics.Color

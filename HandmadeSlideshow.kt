@@ -1,4 +1,4 @@
-package com.diewland.handmadeslideshow
+package com.diewland.hmslideshow
 
 import android.content.Context
 import android.graphics.BitmapFactory

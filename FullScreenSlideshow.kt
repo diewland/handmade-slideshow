@@ -59,9 +59,22 @@ class FullScreenSlideshow (act: Activity,
         dialog.dismiss()
     }
 
+    fun restart () {
+        stop()
+        start()
+    }
+
+    fun physicalClose (): Boolean {
+        return screen.performClick()
+    }
+
+    fun isEmptyMediaList (): Boolean {
+        return slideshow.isEmptyMediaList()
+    }
+
     fun isReadyToStart (): Boolean {
         if (isRunning) return false
-        if (slideshow.isEmptyMediaList()) return false
+        if (isEmptyMediaList()) return false
         return true
     }
 

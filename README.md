@@ -15,3 +15,7 @@ git submodule update --init --recursive      #--- first time
 git submodule update --recursive
 git submodule update --recursive --remote
 ```
+
+#### Demo Project
+
+https://github.com/diewland/handmade-slideshow-demo

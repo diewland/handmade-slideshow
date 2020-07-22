@@ -91,6 +91,10 @@ class HandmadeSlideshow constructor(ctx: Context,
                 if (videoView.isPlaying) videoView.stopPlayback()
             }
         }
+        // hide all
+        imageView.visibility = View.GONE
+        videoView.visibility = View.GONE
+        webView.visibility = View.GONE
     }
 
     /* ---------- UPDATE SLIDESHOW ---------- */

@@ -71,7 +71,7 @@ class HandmadeSlideshow constructor(ctx: Context,
         // hide "Can't play this video" message
         videoView.setOnErrorListener { mp, what, extra ->
             Log.d(TAG, "hide [Can't play this video] message")
-            return true
+            return@setOnErrorListener true
         }
 
         // play next slide when image/video play done

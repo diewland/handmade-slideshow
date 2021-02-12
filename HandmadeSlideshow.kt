@@ -68,6 +68,11 @@ class HandmadeSlideshow constructor(ctx: Context,
         }
         // remove dim from video
         videoView.setZOrderOnTop(true)
+        // hide "Can't play this video" message
+        videoView.setOnErrorListener { mp, what, extra ->
+            Log.d(TAG, "hide [Can't play this video] message")
+            return true
+        }
 
         // play next slide when image/video play done
         playNextImage = Runnable { next() }

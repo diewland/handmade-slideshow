@@ -70,7 +70,11 @@ class HandmadeSlideshow constructor(ctx: Context,
         videoView.setZOrderOnTop(true)
         // hide "Can't play this video" message
         videoView.setOnErrorListener { mp, what, extra ->
-            Log.d(TAG, "hide [Can't play this video] message")
+            Log.d(TAG, "--- onErrorListener ---")
+            Log.d(TAG, "mp: $mp")
+            Log.d(TAG, "what: $what")
+            Log.d(TAG, "extra: $extra")
+            restart()
             return@setOnErrorListener true
         }
 
@@ -100,6 +104,15 @@ class HandmadeSlideshow constructor(ctx: Context,
         imageView.visibility = View.GONE
         videoView.visibility = View.GONE
         webView.visibility = View.GONE
+    }
+
+    fun restart() {
+        Log.d(TAG, "restart slideshow in 1 second")
+        delay({
+            stop()
+            Thread.sleep(1_000)
+            start()
+        }, 1_000)
     }
 
     /* ---------- UPDATE SLIDESHOW ---------- */
@@ -271,4 +284,17 @@ class HandmadeSlideshow constructor(ctx: Context,
         )
     }
 
+    /* ---------- THREAD TOOLS ---------- */
+
+    private fun delay(callback: () -> Unit, ms: Long, _handler: Handler? = null): Handler {
+        val handler = _handler ?: Handler()
+        handler.postDelayed({
+            callback.invoke()
+        }, ms)
+        return handler
+    }
+
+    private fun cancelDelay (handler: Handler?) {
+        handler?.removeCallbacksAndMessages(null)
+    }
 }

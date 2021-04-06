@@ -1,6 +1,7 @@
 package com.diewland.hmslideshow
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Handler
@@ -40,6 +41,7 @@ class HandmadeSlideshow constructor(ctx: Context,
     // image thread
     private var imgHandler = Handler()
     private var playNextImage: Runnable
+    private var bmp: Bitmap? = null
 
     init {
         // TODO show read-internal-storage permission dialog ( if required )
@@ -79,7 +81,13 @@ class HandmadeSlideshow constructor(ctx: Context,
         }
 
         // play next slide when image/video play done
-        playNextImage = Runnable { next() }
+        playNextImage = Runnable {
+            if (bmp != null) {
+                bmp!!.recycle()
+                bmp = null
+            }
+            next()
+        }
         videoView.setOnCompletionListener { next() }
     }
 
@@ -165,8 +173,8 @@ class HandmadeSlideshow constructor(ctx: Context,
         return EXT_GIF.contains(ext.toLowerCase())
     }
 
-    fun renderHTML(html: String="") {
-        webView.loadDataWithBaseURL(null, html, "text/html","utf-8",null)
+    fun renderHTML(html: String = "") {
+        webView.loadDataWithBaseURL(null, html, "text/html", "utf-8", null)
     }
 
     fun renderHTMLImage(path: String) {
@@ -247,7 +255,7 @@ class HandmadeSlideshow constructor(ctx: Context,
         renderHTML("")
 
         // set image
-        val bmp = BitmapFactory.decodeFile(f.absolutePath)
+        bmp = BitmapFactory.decodeFile(f.absolutePath)
         imageView.setImageBitmap(bmp)
     }
 
@@ -294,7 +302,7 @@ class HandmadeSlideshow constructor(ctx: Context,
         return handler
     }
 
-    private fun cancelDelay (handler: Handler?) {
+    private fun cancelDelay(handler: Handler?) {
         handler?.removeCallbacksAndMessages(null)
     }
 }

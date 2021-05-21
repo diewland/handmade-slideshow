@@ -38,8 +38,10 @@ class HandmadeSlideshow constructor(ctx: Context,
     private var mediaType = TYPE_IMAGE
     private var isPlaying = false
 
+    // module thread
+    private var handler = Handler()
+
     // image thread
-    private var imgHandler = Handler()
     private var playNextImage: Runnable
     private var bmp: Bitmap? = null
 
@@ -62,11 +64,11 @@ class HandmadeSlideshow constructor(ctx: Context,
         videoView.visibility = View.GONE
         webView.visibility = View.GONE
 
-        // mute video
-        if (muteVideo) {
-            videoView.setOnPreparedListener { mp ->
-                mp.setVolume(0f, 0f)
-            }
+        videoView.setOnPreparedListener { mp ->
+            // mute video
+            if (muteVideo) mp.setVolume(0f, 0f)
+            // play video
+            videoView.start()
         }
         // remove dim from video
         videoView.setZOrderOnTop(true)
@@ -102,7 +104,7 @@ class HandmadeSlideshow constructor(ctx: Context,
         isPlaying = false
         when (mediaType) {
             TYPE_IMAGE -> {
-                imgHandler.removeCallbacks(playNextImage)
+                handler.removeCallbacks(playNextImage)
             }
             TYPE_VIDEO -> {
                 if (videoView.isPlaying) videoView.stopPlayback()
@@ -112,11 +114,13 @@ class HandmadeSlideshow constructor(ctx: Context,
         imageView.visibility = View.GONE
         videoView.visibility = View.GONE
         webView.visibility = View.GONE
+        // release thread
+        handler.removeCallbacksAndMessages(null)
     }
 
     fun restart() {
         Log.d(TAG, "restart slideshow in 1 second")
-        delay({
+        handler.postDelayed({
             stop()
             Thread.sleep(1_000)
             start()
@@ -219,7 +223,7 @@ class HandmadeSlideshow constructor(ctx: Context,
             // do not refresh if have one media
             if (mediaList.size == 1) return
 
-            imgHandler.postDelayed(playNextImage, photoDelay * 1000)
+            handler.postDelayed(playNextImage, photoDelay * 1000)
         }
 
         // play video
@@ -269,8 +273,10 @@ class HandmadeSlideshow constructor(ctx: Context,
         renderHTML("")
 
         // play video
-        videoView.setVideoURI(Uri.fromFile(f))
-        videoView.start()
+        handler.post { // prevent ANR
+            videoView.setVideoURI(Uri.fromFile(f))
+            // videoView.start() --- start from setOnPreparedListener
+        }
     }
 
     private fun playGif(f: File) {
@@ -292,17 +298,4 @@ class HandmadeSlideshow constructor(ctx: Context,
         )
     }
 
-    /* ---------- THREAD TOOLS ---------- */
-
-    private fun delay(callback: () -> Unit, ms: Long, _handler: Handler? = null): Handler {
-        val handler = _handler ?: Handler()
-        handler.postDelayed({
-            callback.invoke()
-        }, ms)
-        return handler
-    }
-
-    private fun cancelDelay(handler: Handler?) {
-        handler?.removeCallbacksAndMessages(null)
-    }
 }

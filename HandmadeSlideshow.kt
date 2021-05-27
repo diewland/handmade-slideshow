@@ -10,7 +10,10 @@ import android.view.View
 import android.webkit.WebView
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.VideoView
+import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.ui.PlayerView
 import java.io.File
 
 class HandmadeSlideshow constructor(ctx: Context,
@@ -25,9 +28,12 @@ class HandmadeSlideshow constructor(ctx: Context,
     private val EXT_VIDEO = arrayListOf("mp4")
     private val EXT_GIF = arrayListOf("gif")
 
+    // exo player
+    val player = SimpleExoPlayer.Builder(ctx).build()
+
     // views
     val imageView = ImageView(ctx)
-    val videoView = VideoView(ctx)
+    val videoView = PlayerView(ctx)
     val webView = WebView(ctx)
 
     // config
@@ -60,18 +66,15 @@ class HandmadeSlideshow constructor(ctx: Context,
         webView.layoutParams = getLLParams()
 
         // hide all
-        imageView.visibility = View.GONE
-        videoView.visibility = View.GONE
-        webView.visibility = View.GONE
+        hideAllViews()
 
-        videoView.setOnPreparedListener { mp ->
-            // mute video
-            if (muteVideo) mp.setVolume(0f, 0f)
-            // play video
-            videoView.start()
-        }
-        // remove dim from video
-        videoView.setZOrderOnTop(true)
+        // setup exo player
+        videoView.player = player       // set player to video view
+        videoView.useController = false // hide video controller
+        player.playWhenReady = true     // auto play when load media done
+        if (muteVideo) player.setVolume(0f)
+        // ((videoView.videoSurfaceView) as SurfaceView).setZOrderOnTop(true) // remove dim from video
+        /*
         // hide "Can't play this video" message
         videoView.setOnErrorListener { mp, what, extra ->
             Log.d(TAG, "--- onErrorListener ---")
@@ -81,6 +84,7 @@ class HandmadeSlideshow constructor(ctx: Context,
             restart()
             return@setOnErrorListener true
         }
+        */
 
         // play next slide when image/video play done
         playNextImage = Runnable {
@@ -90,7 +94,11 @@ class HandmadeSlideshow constructor(ctx: Context,
             }
             next()
         }
-        videoView.setOnCompletionListener { next() }
+        player.addListener(object: Player.Listener {
+            override fun onPlaybackStateChanged(state: Int) {
+                if (state == Player.STATE_ENDED) next()
+            }
+        })
     }
 
     /* ---------- CONTROL SLIDESHOW ---------- */
@@ -107,17 +115,16 @@ class HandmadeSlideshow constructor(ctx: Context,
                 handler.removeCallbacks(playNextImage)
             }
             TYPE_VIDEO -> {
-                if (videoView.isPlaying) videoView.stopPlayback()
+                if (player.isPlaying) player.stop()
             }
         }
         // hide all
-        imageView.visibility = View.GONE
-        videoView.visibility = View.GONE
-        webView.visibility = View.GONE
+        hideAllViews()
         // release thread
         handler.removeCallbacksAndMessages(null)
     }
 
+    /*
     fun restart() {
         Log.d(TAG, "restart slideshow in 1 second")
         handler.postDelayed({
@@ -126,9 +133,10 @@ class HandmadeSlideshow constructor(ctx: Context,
             start()
         }, 1_000)
     }
+    */
 
     fun destroy() {
-        // TODO release exo player
+        player.release()
     }
 
     /* ---------- UPDATE SLIDESHOW ---------- */
@@ -261,10 +269,7 @@ class HandmadeSlideshow constructor(ctx: Context,
         mediaType = TYPE_IMAGE
 
         // toggle media view
-        videoView.visibility = View.GONE
-        imageView.visibility = View.VISIBLE
-        webView.visibility = View.GONE
-        renderHTML("")
+        showImageView()
 
         // set image
         bmp = BitmapFactory.decodeFile(f.absolutePath)
@@ -275,25 +280,18 @@ class HandmadeSlideshow constructor(ctx: Context,
         mediaType = TYPE_VIDEO
 
         // toggle media view
-        imageView.visibility = View.GONE
-        videoView.visibility = View.VISIBLE
-        webView.visibility = View.GONE
-        renderHTML("")
+        showVideoView()
 
         // play video
-        handler.post { // prevent ANR
-            videoView.setVideoURI(Uri.fromFile(f))
-            // videoView.start() --- start from setOnPreparedListener
-        }
+        player.setMediaItem(MediaItem.fromUri(Uri.fromFile(f)))
+        player.prepare() // video will play automatically from playWhenReady setting
     }
 
     private fun playGif(f: File) {
         mediaType = TYPE_IMAGE
 
         // toggle media view
-        imageView.visibility = View.GONE
-        videoView.visibility = View.GONE
-        webView.visibility = View.VISIBLE
+        showWebView()
 
         // set image
         renderHTMLImage(f.absolutePath)
@@ -304,6 +302,43 @@ class HandmadeSlideshow constructor(ctx: Context,
             LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.MATCH_PARENT
         )
+    }
+
+    // toggle views
+    private fun hideAllViews() {
+        hideImage()
+        hideVideo()
+        hideWeb()
+    }
+    private fun showImageView() {
+        showImage()
+        hideVideo()
+        hideWeb()
+    }
+    private fun showVideoView() {
+        hideImage()
+        showVideo()
+        hideWeb()
+    }
+    private fun showWebView() {
+        hideImage()
+        hideVideo()
+        showWeb()
+    }
+    private fun showImage() { imageView.visibility = View.VISIBLE }
+    private fun hideImage() { imageView.visibility = View.GONE }
+    private fun showVideo() {
+        videoView.visibility = View.VISIBLE
+        videoView.videoSurfaceView?.visibility = View.VISIBLE
+    }
+    private fun hideVideo() {
+        videoView.visibility = View.GONE
+        videoView.videoSurfaceView?.visibility = View.GONE
+    }
+    private fun showWeb() { webView.visibility = View.VISIBLE }
+    private fun hideWeb() {
+        webView.visibility = View.GONE
+        renderHTML("")
     }
 
 }

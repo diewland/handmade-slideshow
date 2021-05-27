@@ -64,6 +64,12 @@ class FullScreenSlideshow (act: Activity,
         start()
     }
 
+    fun destroy() {
+        slideshow.destroy()
+    }
+
+    // tools
+
     fun physicalClose (): Boolean {
         return screen.performClick()
     }

@@ -127,6 +127,10 @@ class HandmadeSlideshow constructor(ctx: Context,
         }, 1_000)
     }
 
+    fun destroy() {
+        // TODO release exo player
+    }
+
     /* ---------- UPDATE SLIDESHOW ---------- */
 
     fun addMedia(mediaPath: String) {
@@ -157,6 +161,10 @@ class HandmadeSlideshow constructor(ctx: Context,
 
     fun onPause() {
         if (isPlaying) stop()
+    }
+
+    fun onDestroy() {
+        destroy()
     }
 
     /* ---------- UTILITIES ---------- */

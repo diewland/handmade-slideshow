@@ -72,7 +72,7 @@ class HandmadeSlideshow constructor(ctx: Context,
         videoView.player = player       // set player to video view
         videoView.useController = false // hide video controller
         player.playWhenReady = true     // auto play when load media done
-        if (muteVideo) player.setVolume(0f)
+        if (muteVideo) player.volume = 0f
         // ((videoView.videoSurfaceView) as SurfaceView).setZOrderOnTop(true) // remove dim from video
         /*
         // hide "Can't play this video" message
@@ -335,7 +335,9 @@ class HandmadeSlideshow constructor(ctx: Context,
         videoView.visibility = View.GONE
         //videoView.videoSurfaceView?.visibility = View.GONE
     }
-    private fun showWeb() { webView.visibility = View.VISIBLE }
+    private fun showWeb() {
+        webView.visibility = View.VISIBLE
+    }
     private fun hideWeb() {
         webView.visibility = View.GONE
         renderHTML("")

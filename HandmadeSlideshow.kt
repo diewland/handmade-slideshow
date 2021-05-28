@@ -329,11 +329,11 @@ class HandmadeSlideshow constructor(ctx: Context,
     private fun hideImage() { imageView.visibility = View.GONE }
     private fun showVideo() {
         videoView.visibility = View.VISIBLE
-        videoView.videoSurfaceView?.visibility = View.VISIBLE
+        //videoView.videoSurfaceView?.visibility = View.VISIBLE
     }
     private fun hideVideo() {
         videoView.visibility = View.GONE
-        videoView.videoSurfaceView?.visibility = View.GONE
+        //videoView.videoSurfaceView?.visibility = View.GONE
     }
     private fun showWeb() { webView.visibility = View.VISIBLE }
     private fun hideWeb() {

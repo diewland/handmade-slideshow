@@ -17,7 +17,7 @@ import com.google.android.exoplayer2.ui.PlayerView
 import java.io.File
 
 class HandmadeSlideshow constructor(ctx: Context,
-                                    rootView: LinearLayout,
+                                    private val rootView: LinearLayout,
                                     private val mediaList: ArrayList<String> = arrayListOf(),
                                     muteVideo: Boolean = false) {
 
@@ -137,6 +137,7 @@ class HandmadeSlideshow constructor(ctx: Context,
 
     fun destroy() {
         player.release()
+        rootView.removeAllViews()
     }
 
     /* ---------- UPDATE SLIDESHOW ---------- */

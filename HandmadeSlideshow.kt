@@ -3,6 +3,7 @@ package com.diewland.hmslideshow
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Handler
 import android.util.Log
@@ -29,6 +30,9 @@ class HandmadeSlideshow constructor(ctx: Context,
     val imageView = ImageView(ctx)
     val videoView = VideoView(ctx)
     val webView = WebView(ctx)
+
+    // media player
+    lateinit var mediaPlayer: MediaPlayer
 
     // config
     private var photoDelay:Long = 60 // seconds
@@ -65,6 +69,8 @@ class HandmadeSlideshow constructor(ctx: Context,
         webView.visibility = View.GONE
 
         videoView.setOnPreparedListener { mp ->
+            // get media player
+            mediaPlayer = mp
             // mute video
             if (muteVideo) mp.setVolume(0f, 0f)
             // play video

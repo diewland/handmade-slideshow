@@ -17,7 +17,8 @@ import java.io.File
 class HandmadeSlideshow constructor(ctx: Context,
                                     rootView: LinearLayout,
                                     private val mediaList: ArrayList<String> = arrayListOf(),
-                                    muteVideo: Boolean = false) {
+                                    muteVideo: Boolean = false,
+                                    volume: Float = 1f) {
 
     private val TAG = "HMSLIDESHOW"
     private val TYPE_IMAGE = "TYPE_IMAGE"
@@ -71,8 +72,9 @@ class HandmadeSlideshow constructor(ctx: Context,
         videoView.setOnPreparedListener { mp ->
             // get media player
             mediaPlayer = mp
-            // mute video
-            if (muteVideo) mp.setVolume(0f, 0f)
+            // video volume
+            val v = if (muteVideo) 0f else volume
+            mp.setVolume(v, v)
             // play video
             videoView.start()
         }

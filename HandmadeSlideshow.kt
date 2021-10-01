@@ -19,7 +19,8 @@ import java.io.File
 class HandmadeSlideshow constructor(ctx: Context,
                                     private val rootView: LinearLayout,
                                     private val mediaList: ArrayList<String> = arrayListOf(),
-                                    muteVideo: Boolean = false) {
+                                    muteVideo: Boolean = false,
+                                    volume: Float = 1f) {
 
     private val TAG = "HMSLIDESHOW"
     private val TYPE_IMAGE = "TYPE_IMAGE"
@@ -72,7 +73,7 @@ class HandmadeSlideshow constructor(ctx: Context,
         videoView.player = player       // set player to video view
         videoView.useController = false // hide video controller
         player.playWhenReady = true     // auto play when load media done
-        if (muteVideo) player.volume = 0f
+        // if (muteVideo) player.volume = 0f
         // ((videoView.videoSurfaceView) as SurfaceView).setZOrderOnTop(true) // remove dim from video
         /*
         // hide "Can't play this video" message
@@ -85,6 +86,10 @@ class HandmadeSlideshow constructor(ctx: Context,
             return@setOnErrorListener true
         }
         */
+
+        // video volume
+        val v = if (muteVideo) 0f else volume
+        player.volume = v
 
         // play next slide when image/video play done
         playNextImage = Runnable {

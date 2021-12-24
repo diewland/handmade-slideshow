@@ -20,7 +20,8 @@ class HandmadeSlideshow constructor(ctx: Context,
                                     private val rootView: LinearLayout,
                                     private val mediaList: ArrayList<String> = arrayListOf(),
                                     muteVideo: Boolean = false,
-                                    volume: Float = 1f) {
+                                    volume: Float = 1f,
+                                    private val eventLog: ((String)->Unit)?=null) {
 
     private val TAG = "HMSLIDESHOW"
     private val TYPE_IMAGE = "TYPE_IMAGE"
@@ -78,10 +79,10 @@ class HandmadeSlideshow constructor(ctx: Context,
         /*
         // hide "Can't play this video" message
         videoView.setOnErrorListener { mp, what, extra ->
-            Log.d(TAG, "--- onErrorListener ---")
-            Log.d(TAG, "mp: $mp")
-            Log.d(TAG, "what: $what")
-            Log.d(TAG, "extra: $extra")
+            l("--- onErrorListener ---")
+            l("mp: $mp")
+            l("what: $what")
+            l("extra: $extra")
             restart()
             return@setOnErrorListener true
         }
@@ -131,7 +132,7 @@ class HandmadeSlideshow constructor(ctx: Context,
 
     /*
     fun restart() {
-        Log.d(TAG, "restart slideshow in 1 second")
+        l("restart slideshow in 1 second")
         handler.postDelayed({
             stop()
             Thread.sleep(1_000)
@@ -231,12 +232,12 @@ class HandmadeSlideshow constructor(ctx: Context,
 
         // file not found
         if (!f.exists()) {
-            Log.d(TAG, "#$mediaIndex [SKIP] $filePath <-- File not found")
+            l("#$mediaIndex [SKIP] $filePath <-- File not found")
         }
 
         // play image
         else if (checkImageExt(f.extension)) {
-            Log.d(TAG, "#$mediaIndex [PASS] $filePath")
+            l("#$mediaIndex [PASS] $filePath")
             when {
                 checkGifExt(f.extension) -> playGif(f)
                 else -> playImage(f)
@@ -250,13 +251,13 @@ class HandmadeSlideshow constructor(ctx: Context,
 
         // play video
         else if (checkVideoExt(f.extension)) {
-            Log.d(TAG, "#$mediaIndex [PASS] $filePath")
+            l("#$mediaIndex [PASS] $filePath")
             playVideo(f)
         }
 
         // extension does not support
         else {
-            Log.d(TAG, "#$mediaIndex [SKIP] $filePath <-- Extension does not support")
+            l("#$mediaIndex [SKIP] $filePath <-- Extension does not support")
         }
     }
 
@@ -347,6 +348,13 @@ class HandmadeSlideshow constructor(ctx: Context,
     private fun hideWeb() {
         webView.visibility = View.GONE
         renderHTML("")
+    }
+
+    /* ---------- LOG ---------- */
+
+    private fun l(msg: String) {
+        Log.d(TAG, msg)
+        eventLog?.invoke(msg)
     }
 
 }

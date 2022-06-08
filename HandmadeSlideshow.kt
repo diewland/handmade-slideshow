@@ -37,7 +37,7 @@ class HandmadeSlideshow constructor(ctx: Context,
     lateinit var mediaPlayer: MediaPlayer
 
     // config
-    private var photoDelay:Long = 60 // seconds
+    private var photoDelay:Long = 10 // seconds
 
     // app state
     private var mediaIndex = 0

@@ -16,11 +16,11 @@ import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ui.PlayerView
 import java.io.File
 
-class HandmadeSlideshow constructor(ctx: Context,
+class HandmadeSlideshow constructor(private val ctx: Context,
                                     private val rootView: LinearLayout,
                                     private val mediaList: ArrayList<String> = arrayListOf(),
-                                    muteVideo: Boolean = false,
-                                    volume: Float = 1f,
+                                    private val muteVideo: Boolean = false,
+                                    private val volume: Float = 1f,
                                     private val eventLog: ((String)->Unit)?=null) {
 
     private val TAG = "HMSLIDESHOW"
@@ -31,7 +31,7 @@ class HandmadeSlideshow constructor(ctx: Context,
     private val EXT_GIF = arrayListOf("gif")
 
     // exo player
-    val player = SimpleExoPlayer.Builder(ctx).build()
+    lateinit var player: SimpleExoPlayer
 
     // views
     val imageView = ImageView(ctx)
@@ -70,27 +70,8 @@ class HandmadeSlideshow constructor(ctx: Context,
         // hide all
         hideAllViews()
 
-        // setup exo player
-        videoView.player = player       // set player to video view
-        videoView.useController = false // hide video controller
-        player.playWhenReady = true     // auto play when load media done
-        // if (muteVideo) player.volume = 0f
-        // ((videoView.videoSurfaceView) as SurfaceView).setZOrderOnTop(true) // remove dim from video
-        /*
-        // hide "Can't play this video" message
-        videoView.setOnErrorListener { mp, what, extra ->
-            l("--- onErrorListener ---")
-            l("mp: $mp")
-            l("what: $what")
-            l("extra: $extra")
-            restart()
-            return@setOnErrorListener true
-        }
-        */
-
-        // video volume
-        val v = if (muteVideo) 0f else volume
-        player.volume = v
+        // init video player
+        initVideoPlayer()
 
         // play next slide when image/video play done
         playNextImage = Runnable {
@@ -100,11 +81,6 @@ class HandmadeSlideshow constructor(ctx: Context,
             }
             next()
         }
-        player.addListener(object: Player.Listener {
-            override fun onPlaybackStateChanged(state: Int) {
-                if (state == Player.STATE_ENDED) next()
-            }
-        })
     }
 
     /* ---------- CONTROL SLIDESHOW ---------- */
@@ -261,6 +237,41 @@ class HandmadeSlideshow constructor(ctx: Context,
         }
     }
 
+    private fun initVideoPlayer() {
+        player = SimpleExoPlayer.Builder(ctx).build()
+
+        // setup exo player
+        videoView.player = player       // set player to video view
+        videoView.useController = false // hide video controller
+        player.playWhenReady = true     // auto play when load media done
+        // if (muteVideo) player.volume = 0f
+        // ((videoView.videoSurfaceView) as SurfaceView).setZOrderOnTop(true) // remove dim from video
+        /*
+        // hide "Can't play this video" message
+        videoView.setOnErrorListener { mp, what, extra ->
+            l("--- onErrorListener ---")
+            l("mp: $mp")
+            l("what: $what")
+            l("extra: $extra")
+            restart()
+            return@setOnErrorListener true
+        }
+        */
+
+        // video volume
+        val v = if (muteVideo) 0f else volume
+        player.volume = v
+
+        // play next slide when image/video play done
+        player.addListener(object: Player.Listener {
+            override fun onPlaybackStateChanged(state: Int) {
+                if (state != Player.STATE_ENDED) return
+                player.release()
+                next()
+            }
+        })
+    }
+
     // control flow
     private fun next() {
         if (mediaIndex < mediaList.size-1) {
@@ -285,6 +296,9 @@ class HandmadeSlideshow constructor(ctx: Context,
 
     private fun playVideo(f: File) {
         mediaType = TYPE_VIDEO
+
+        // re-init video player
+        initVideoPlayer()
 
         // toggle media view
         showVideoView()

@@ -51,7 +51,7 @@ class HandmadeSlideshow constructor(private val ctx: Context,
     private var handler = Handler()
 
     // image thread
-    private var playNextImage: Runnable
+    private var imgHandler: Runnable
     private var bmp: Bitmap? = null
 
     init {
@@ -74,13 +74,13 @@ class HandmadeSlideshow constructor(private val ctx: Context,
         // init video player
         initVideoPlayer()
 
-        // play next slide when image/video play done
-        playNextImage = Runnable {
+        // play next slide when image play done
+        imgHandler = Runnable {
             if (bmp != null) {
                 bmp!!.recycle()
                 bmp = null
             }
-            next()
+            playNextMedia()
         }
     }
 
@@ -95,7 +95,7 @@ class HandmadeSlideshow constructor(private val ctx: Context,
         isPlaying = false
         when (mediaType) {
             TYPE_IMAGE -> {
-                handler.removeCallbacks(playNextImage)
+                handler.removeCallbacks(imgHandler)
             }
             TYPE_VIDEO -> {
                 if (player.isPlaying) player.stop()
@@ -121,6 +121,14 @@ class HandmadeSlideshow constructor(private val ctx: Context,
     fun destroy() {
         player.release()
         rootView.removeAllViews()
+    }
+
+    fun back() {
+        // TODO
+    }
+
+    fun next() {
+        // TODO
     }
 
     /* ---------- UPDATE SLIDESHOW ---------- */
@@ -223,7 +231,7 @@ class HandmadeSlideshow constructor(private val ctx: Context,
             // do not refresh if have one media
             if (mediaList.size == 1) return
 
-            handler.postDelayed(playNextImage, photoDelay * 1000)
+            handler.postDelayed(imgHandler, photoDelay * 1000)
         }
 
         // play video
@@ -268,13 +276,13 @@ class HandmadeSlideshow constructor(private val ctx: Context,
             override fun onPlaybackStateChanged(state: Int) {
                 if (state != Player.STATE_ENDED) return
                 player.release()
-                next()
+                playNextMedia()
             }
         })
     }
 
     // control flow
-    private fun next() {
+    private fun playNextMedia() {
         if (mediaIndex < mediaList.size-1) {
             mediaIndex++
         }

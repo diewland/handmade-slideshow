@@ -21,6 +21,7 @@ class HandmadeSlideshow constructor(private val ctx: Context,
                                     private val mediaList: ArrayList<String> = arrayListOf(),
                                     private val muteVideo: Boolean = false,
                                     private val volume: Float = 1f,
+                                    private val repeat: Boolean = true,
                                     private val eventLog: ((String)->Unit)?=null) {
 
     private val TAG = "HMSLIDESHOW"
@@ -279,6 +280,10 @@ class HandmadeSlideshow constructor(private val ctx: Context,
         }
         else {
             mediaIndex = 0
+            if (!repeat) {
+                l("end of playlist")
+                return
+            }
         }
         play()
     }

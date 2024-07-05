@@ -9,6 +9,7 @@ class FullScreenSlideshow (act: Activity,
                            private val screenWidth: Int=1920,   // FHD
                            private val screenHeight: Int=1080,  // FHD
                            volume: Float=1f,
+                           repeat: Boolean = true,
                            eventLog: ((String)->Unit)?=null,
                            closeCallback: (() -> Unit)?=null) {
 
@@ -16,7 +17,7 @@ class FullScreenSlideshow (act: Activity,
     private var screen: LinearLayout = LinearLayout(act)
 
     // open access for load media-list from outside
-    var slideshow = HandmadeSlideshow(act, screen, volume=volume, eventLog=eventLog)
+    var slideshow = HandmadeSlideshow(act, screen, volume=volume, repeat=repeat, eventLog=eventLog)
     var isRunning = false
 
     init {

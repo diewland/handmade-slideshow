@@ -124,11 +124,27 @@ class HandmadeSlideshow constructor(private val ctx: Context,
     }
 
     fun back() {
-        // TODO
+        if (mediaIndex <= 0) { // first
+            if (!repeat) return
+            mediaIndex = mediaList.size - 1
+        }
+        else {
+            mediaIndex--
+        }
+        stop()
+        handler.postDelayed({ play() }, 300)
     }
 
     fun next() {
-        // TODO
+        if (mediaIndex >= mediaList.size - 1) { // last
+            if (!repeat) return
+            mediaIndex = 0
+        }
+        else {
+            mediaIndex++
+        }
+        stop()
+        handler.postDelayed({ play() }, 300)
     }
 
     /* ---------- UPDATE SLIDESHOW ---------- */
@@ -287,11 +303,11 @@ class HandmadeSlideshow constructor(private val ctx: Context,
             mediaIndex++
         }
         else {
-            mediaIndex = 0
             if (!repeat) {
                 l("end of playlist")
                 return
             }
+            mediaIndex = 0
         }
         play()
     }

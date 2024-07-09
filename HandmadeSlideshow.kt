@@ -22,7 +22,6 @@ class HandmadeSlideshow constructor(private val ctx: Context,
                                     private val muteVideo: Boolean = false,
                                     private val volume: Float = 1f,
                                     private val repeat: Boolean = true,
-                                    private val onFinish: (()->Unit)?=null,
                                     private val eventLog: ((String)->Unit)?=null) {
 
     private val TAG = "HMSLIDESHOW"
@@ -184,6 +183,12 @@ class HandmadeSlideshow constructor(private val ctx: Context,
         destroy()
     }
 
+    // require: repeat = false
+    private var onPlaylistEnded: (()->Unit)? = null
+    fun setOnPlaylistEnded(action: ()->Unit) {
+        onPlaylistEnded = action
+    }
+
     /* ---------- UTILITIES ---------- */
 
     fun isEmptyMediaList(): Boolean {
@@ -305,8 +310,8 @@ class HandmadeSlideshow constructor(private val ctx: Context,
         }
         else {
             if (!repeat) {
-                l("onFinish: end of playlist")
-                onFinish?.invoke()
+                l("end of playlist")
+                onPlaylistEnded?.invoke()
                 return
             }
             mediaIndex = 0
